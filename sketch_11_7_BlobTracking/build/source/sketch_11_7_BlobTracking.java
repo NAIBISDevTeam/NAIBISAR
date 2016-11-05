@@ -1,13 +1,31 @@
+import processing.core.*; 
+import processing.data.*; 
+import processing.event.*; 
+import processing.opengl.*; 
+
+import processing.video.*; 
+
+import java.util.HashMap; 
+import java.util.ArrayList; 
+import java.io.File; 
+import java.io.BufferedReader; 
+import java.io.PrintWriter; 
+import java.io.InputStream; 
+import java.io.OutputStream; 
+import java.io.IOException; 
+
+public class sketch_11_7_BlobTracking extends PApplet {
+
 // Daniel Shiffman
 // http://codingrainbow.com
 // http://patreon.com/codingrainbow
 // Code for: https://youtu.be/ce-2l2wRqO8
 
-import processing.video.*;
+
 
 Capture video;
 
-color trackColor;
+int trackColor;
 float threshold = 20;
 float distThreshold = 75;
 
@@ -17,6 +35,7 @@ ArrayList<Blob> blobs = new ArrayList<Blob>();
 // http://codingrainbow.com
 // http://patreon.com/codingrainbow
 // Code for: https://youtu.be/ce-2l2wRqO8
+PImage img;
 
 
 class Blob {
@@ -32,27 +51,26 @@ class Blob {
     maxy = y;
   }
 
-  void show() {
+  public void show() {
     stroke(0);
     fill(255);
     strokeWeight(2);
     rectMode(CORNERS);
-    video.loadPixels();
-    image(video, minx, miny, maxx - minx, maxy - miny);
+    image(img, minx, miny, maxx - minx, maxy - miny);
   }
 
-  void add(float x, float y) {
+  public void add(float x, float y) {
     minx = min(minx, x);
     miny = min(miny, y);
     maxx = max(maxx, x);
     maxy = max(maxy, y);
   }
 
-  float size() {
+  public float size() {
     return (maxx-minx)*(maxy-miny);
   }
 
-  boolean isNear(float x, float y) {
+  public boolean isNear(float x, float y) {
     float cx = (minx + maxx) / 2;
     float cy = (miny + maxy) / 2;
 
@@ -65,20 +83,21 @@ class Blob {
   }
 }
 
-void setup() {
-  size(640, 360);
+public void setup() {
+  
   String[] cameras = Capture.list();
   printArray(cameras);
   video = new Capture(this, cameras[3]);
   video.start();
   trackColor = color(180, 50, 25);
+  img = loadImage("NAIBIS_Name.png");
 }
 
-void captureEvent(Capture video) {
+public void captureEvent(Capture video) {
   video.read();
 }
 
-void keyPressed() {
+public void keyPressed() {
   if (key == 'a') {
     distThreshold++;
   } else if (key == 'z') {
@@ -86,10 +105,8 @@ void keyPressed() {
   }
   println(distThreshold);
 }
-void draw(){
-  scan();
-}
-void scan() {
+
+public void draw() {
   video.loadPixels();
   image(video, 0, 0);
 
@@ -103,7 +120,7 @@ void scan() {
     for (int y = 0; y < video.height; y++ ) {
       int loc = x + y * video.width;
       // What is current color
-      color currentColor = video.pixels[loc];
+      int currentColor = video.pixels[loc];
       float r1 = red(currentColor);
       float g1 = green(currentColor);
       float b1 = blue(currentColor);
@@ -140,19 +157,29 @@ void scan() {
 }
 
 
-float distSq(float x1, float y1, float x2, float y2) {
+public float distSq(float x1, float y1, float x2, float y2) {
   float d = (x2-x1)*(x2-x1) + (y2-y1)*(y2-y1);
   return d;
 }
 
 
-float distSq(float x1, float y1, float z1, float x2, float y2, float z2) {
+public float distSq(float x1, float y1, float z1, float x2, float y2, float z2) {
   float d = (x2-x1)*(x2-x1) + (y2-y1)*(y2-y1) +(z2-z1)*(z2-z1);
   return d;
 }
 
-void mousePressed() {
+public void mousePressed() {
   // Save color where the mouse is clicked in trackColor variable
   int loc = mouseX + mouseY*video.width;
   trackColor = video.pixels[loc];
+}
+  public void settings() {  size(640, 360); }
+  static public void main(String[] passedArgs) {
+    String[] appletArgs = new String[] { "sketch_11_7_BlobTracking" };
+    if (passedArgs != null) {
+      PApplet.main(concat(appletArgs, passedArgs));
+    } else {
+      PApplet.main(appletArgs);
+    }
+  }
 }
