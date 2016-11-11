@@ -19,51 +19,7 @@ ArrayList<Blob> blobs = new ArrayList<Blob>();
 // Code for: https://youtu.be/ce-2l2wRqO8
 
 
-class Blob {
-  float minx;
-  float miny;
-  float maxx;
-  float maxy;
 
-  Blob(float x, float y) {
-    minx = x;
-    miny = y;
-    maxx = x;
-    maxy = y;
-  }
-
-  void show() {
-    stroke(0);
-    fill(255);
-    strokeWeight(2);
-    rectMode(CORNERS);
-    video.loadPixels();
-    image(video, minx, miny, maxx - minx, maxy - miny);
-  }
-
-  void add(float x, float y) {
-    minx = min(minx, x);
-    miny = min(miny, y);
-    maxx = max(maxx, x);
-    maxy = max(maxy, y);
-  }
-
-  float size() {
-    return (maxx-minx)*(maxy-miny);
-  }
-
-  boolean isNear(float x, float y) {
-    float cx = (minx + maxx) / 2;
-    float cy = (miny + maxy) / 2;
-
-    float d = distSq(cx, cy, x, y);
-    if (d < distThreshold*distThreshold) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-}
 
 void setup() {
   size(640, 360);
@@ -71,7 +27,7 @@ void setup() {
   printArray(cameras);
   video = new Capture(this, cameras[3]);
   video.start();
-  trackColor = color(180, 50, 25);
+  trackColor = color(255, 0, 0);
 }
 
 void captureEvent(Capture video) {
@@ -95,8 +51,9 @@ void scan() {
 
   blobs.clear();
 
-  //threshold = map(mouseX, 0, width, 0, 100);
-  threshold = 80;
+  threshold = 36;
+  distThreshold = 256;
+  //threshold = 80;
 
   // Begin loop to walk through every pixel
   for (int x = 0; x < video.width; x++ ) {
